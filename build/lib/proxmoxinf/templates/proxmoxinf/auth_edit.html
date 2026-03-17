@@ -1,0 +1,66 @@
+{% extends 'generic/_base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}
+  Edit Information Proxmox
+{% endblock %}
+
+
+{% block modals %}
+<div id="proxmox-modal" class="modal fade" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-body text-center mb-2" id="htmx-modal-connection-status">
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block tabs %}
+
+{% endblock %}
+
+{% block content %}
+      <div class="modal-body">
+        <div class="container mt-5">
+            <h2 class="mb-4">Update Proxmox Information</h2>
+
+            
+            <!-- Form -->
+            <form action="{% url 'plugins:proxmoxinf:auth_edit' cluster %}" method="post" class="row g-3" >
+                {% csrf_token %}
+                <div class="col">
+                <input type="text" class="form-control" id="host_ip" name="host_ip" placeholder="Host IP" value="{% if config.host_ip %}{{ config.host_ip }}{% endif %}" required> 
+                </div>
+                <div class="col">
+                <input type="text" class="form-control" id="username" name="username" placeholder="Username" value="{% if config.username %}{{ config.username }}{% endif %}" required>
+                </div>
+                <div class="col">
+                <input type="password" class="form-control" id="password" name="password" placeholder="Password" value=""  required>
+                </div>
+                <div class="col">
+                <input type="text" class="form-control" id="port" name="port" placeholder="Port (Defaults: 8006)" value="{% if config.port %}{{ config.port }}{% endif %}"> 
+                </div>
+                <div class="col">
+                <input type="text" class="form-control" id="bkstorage" name="bkstorage_name" placeholder="Backup Storage" value="{% if config.bkstorage_name %}{{ config.bkstorage_name }}{% endif %}">
+                </div>
+                <div class="col-12"  style="text-align: center;">
+
+                <button type="submit" class="btn btn-primary mt-2 ">{% trans "Update Proxmox Information" %}</button>
+                </div>
+            </form>
+            {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+            {% if success %}<div class="alert alert-success">{{ success }}</div>{% endif %}
+
+        </div>
+
+
+      </div>
+
+
+
+
+{% endblock %}

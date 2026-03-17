@@ -1,0 +1,139 @@
+{% extends 'generic/_base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}
+  Get info VM from Proxmox
+
+{% endblock %}
+
+
+{% block modals %}
+<div id="proxmox-modal" class="modal fade" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-body text-center mb-2" id="htmx-modal-connection-status">
+        
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block tabs %}
+
+{% endblock %}
+
+{% block content %}
+      <div class="modal-header">
+        <h5 class="modal-title"> </h5>
+      </div>
+      <div class="modal-body">
+        <div class="d-flex justify-content-center">
+          <div class="" style="width: 400px;">
+            
+            <form action="{% url 'plugins:proxmoxinf:dashboard' %}" method="post" >
+            {% csrf_token %}
+            <label for="cluster" class="form-label">Cluster</label><i class="mdi mdi-information text-primary" data-bs-toggle="tooltip" data-bs-placement="right" aria-label="Zone" data-bs-original-title="Select the zone to which the VM belongs. Warning: Must create the cluster (zone) in Netbox with type proxmox first."></i>
+            <select class="form-select" id="cluster" name="cluster" placeholder="Cluster" required>
+              <option value="">Select a cluster</option>
+              {% if cluster_list %}
+                  {% for cluster_name in cluster_list %}
+                      <option value="{{ cluster_name }}" {% if cluster == cluster_name %}selected{% endif %}>{{ cluster_name }}</option>
+                  {% endfor %}
+              {% endif %}
+            </select>
+              <!-- Node selection -->
+              <div id="loadingSpinner" class="spinner-border text-primary" role="status" style="display:none; margin-top:10px;">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              <label for="node" class="form-label">Node</label><i class="mdi mdi-information text-primary" data-bs-toggle="tooltip" data-bs-placement="right" aria-label="Zone" data-bs-original-title="Select the node to which the VM belongs."></i>
+              <select id="node" name="node" class="form-select" required disabled>
+                <option value="">-- Select Node --</option>
+              </select>
+            <label for="vmid" class="form-label">{% trans "VM ID" %}</label><i class="mdi mdi-information text-primary" data-bs-toggle="tooltip" data-bs-placement="right" aria-label="VM ID" data-bs-original-title="Enter the VM ID to fetch information from Proxmox."></i>
+            <input type="number" class="form-control" id="vmid" name="vmid" required>
+            <button type="submit" class="btn btn-primary mt-2">{% trans "Add/Update VM Information" %}</button>
+          </form>
+          <div>
+            {% if error %}
+              <div class="alert alert-danger mt-3" style="color: red; " role="alert">
+                <b>{{ error }}</b>
+              </div>
+            {% endif %}
+            {% if success_message %}
+              <div class="alert alert-success mt-3" style="color: green; " role="alert">
+                <b>{{ success_message }}</b>
+              </div>
+            {% endif %}
+        </div>
+          </div>
+        </div>
+      </div>
+      <!-- Tom Select JS -->
+  <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
+
+
+      <script>
+
+document.addEventListener("DOMContentLoaded", () => {
+
+document.getElementById("cluster").addEventListener("change", async function() 
+{
+    // Show spinner
+    document.getElementById("loadingSpinner").style.display = "inline-block";  
+    const cluster_name = this.value;
+
+    const nodeSelect = document.getElementById("node");
+    // Reset node dropdown
+    nodeSelect.disabled = true;
+    nodeSelect.innerHTML = '<option value="">-- Select Node --</option>';
+    let select = nodeSelect.tomselect || new TomSelect(nodeSelect);
+    select.clearOptions();
+
+    if (cluster_name) {
+        // Example: fetch nodes from your Django endpoint
+
+        const response = await fetch(`get-nodes/${cluster_name}/`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const nodes = await response.json();
+        console.log("Nodes received:", nodes);
+        if (nodes.length === 0) {
+            console.log("No nodes found for cluster:", cluster_name);
+            return;
+        }
+        
+
+
+        nodes.forEach(node => {
+            console.log("Adding node to dropdown:", node);
+            const option = document.createElement("option");
+            option.value = node;
+            option.textContent = node;
+            select.addOption({value: node, text: node}); // Add option to TomSelect
+            nodeSelect.appendChild(option);
+        });
+        select.enable(); // Enable TomSelect after adding options
+        nodeSelect.disabled = false; // Enable node dropdown after populating
+        console.log(nodeSelect);
+        console.log("Node dropdown updated successfully");
+
+
+    }
+      // Hide spinner
+      document.getElementById("loadingSpinner").style.display = "none";
+});
+});
+</script>
+
+{% endblock %}
+
+
+
+
+
+
+

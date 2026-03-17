@@ -1,0 +1,109 @@
+{% extends 'generic/_base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}
+  List Authentication Information Proxmox
+{% endblock %}
+
+
+{% block modals %}
+<div id="proxmox-modal" class="modal fade" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-body text-center mb-2" id="htmx-modal-connection-status">
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block tabs %}
+
+{% endblock %}
+
+{% block content %}
+      <div class="modal-body">
+        <div class="container mt-5">
+            <h2 class="mb-4">Add Proxmox Information</h2>
+
+            
+            <!-- Form -->
+            <form action="{% url 'plugins:proxmoxinf:auth_list' %}" method="post" class="row g-3" >
+                {% csrf_token %}
+                <div class="col-md-2" >
+                <select class="form-select" id="cluster" name="cluster" placeholder="Cluster" required>
+                    <option value="">Select a cluster</option>
+                    {% if cluster_list %}
+                        {% for cluster_name in cluster_list %}
+                            <option value="{{ cluster_name }}" {% if cluster == cluster_name %}selected{% endif %}>{{ cluster_name }}</option>
+                        {% endfor %}
+                    {% endif %}
+                </select>
+                </div>
+                <div class="col-md-2">
+                <input type="text" class="form-control" id="host_ip" name="host_ip" placeholder="Host IP" value="{% if host_ip %}{{ host_ip }}{% endif %}" required> 
+                </div>
+                <div class="col-md-2">
+                <input type="text" class="form-control" id="username" name="username" placeholder="Username" value="{% if username %}{{ username }}{% endif %}" required>
+                </div>
+                <div class="col-md-2">
+                <input type="password" class="form-control" id="password" name="password" placeholder="Password" value="{% if password %}{{ password }}{% endif %}"   required>
+                </div>
+                <div class="col-md-2">
+                <input type="text" class="form-control" id="port" name="port" placeholder="Port (Defaults: 8006)" value="{% if port %}{{ port }}{% endif %}"> 
+                </div>
+                <div class="col-md-2">
+                <input type="text" class="form-control" id="bkstorage_name" name="bkstorage_name" placeholder="Backup Storage" value="{% if bkstorage_name %}{{ bkstorage_name }}{% endif %}">
+                </div>
+                <div class="col-10"  style="text-align: center;">
+
+                <button type="submit" class="btn btn-primary mt-2 ">{% trans "Add Proxmox Information" %}</button>
+                </div>
+            </form>
+            {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+            {% if success %}<div class="alert alert-success">{{ success }}</div>{% endif %}
+
+            <!-- List -->
+            <h3 class="mt-5">Proxmox Information List</h3>
+            <table class="table table-striped mt-3">
+                <thead class="table-dark">
+                <tr>
+                    <th>Cluster</th><th>Host IP</th><th>Username</th><th>Password</th><th>Port</th><th>Backup Storage</th><th>Actions</th>
+                </tr>
+                </thead>
+                <tbody id="objectList">
+                {% for cluster, info in proxmox_list.items %}
+                <tr>
+                    <td>{{ cluster }}</td>
+                    <td>{{ info.host_ip }}</td>
+                    <td>{{ info.username }}</td> 
+                    <td>********</td>
+                    <td>{{ info.port }}</td>
+                    <td>{{ info.bkstorage_name }}</td>
+                    <td>
+                      <button class="btn btn-sm btn-warning me-2" onclick="location.href='{% url 'plugins:proxmoxinf:auth_edit' cluster=cluster %}'">Edit</button>
+
+                      <form method="post" action="{% url 'plugins:proxmoxinf:auth_delete' cluster=cluster %}" 
+                        onsubmit="return confirm('Are you sure you want to delete {{ cluster }}?');">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                      </form>
+
+                      {% comment %} <button class="btn btn-sm btn-danger" onclick="deleteObject(${index})">Delete</button> {% endcomment %}
+                    </td>
+
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+
+      </div>
+
+
+
+
+{% endblock %}
