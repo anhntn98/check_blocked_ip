@@ -26,7 +26,7 @@ PLUGINS = [
 ]
 ```
 
-4. Restart the Netbox service to apply the changes.
+3. Restart the Netbox service to apply the changes.
 
 ```bash
 sudo systemctl restart netbox
