@@ -1,0 +1,74 @@
+{% extends 'generic/_base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}
+  Check Blocked IP Address 
+
+{% endblock %}
+
+
+{% block modals %}
+<div id="proxmox-modal" class="modal fade" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-body text-center mb-2" id="htmx-modal-connection-status">
+        
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block tabs %}
+
+{% endblock %}
+
+{% block content %}
+      <div class="modal-header">
+        <h5 class="modal-title"> </h5>
+      </div>
+      <div class="modal-body">
+        <div class="d-flex justify-content-center">
+          <div class="" style="width: 400px;">
+            
+            <form action="{% url 'plugins:check_blocked_ip:dashboard' %}" method="post" >
+            {% csrf_token %}
+              <!-- Node selection -->
+
+            <label for="ipgw" class="form-label">{% trans "IP Gateway" %} <i class="mdi mdi-information text-primary" data-bs-toggle="tooltip" data-bs-placement="right" aria-label="IP Gateway" data-bs-original-title="Enter the IP gateway for SNMP query."></i></label>
+            <input type="text" class="form-control" id="ipgw" name="ipgw" value="{% if ipgw %}{{ ipgw }}{% endif %}" required>
+            <label for="community" class="form-label"><br>{% trans "Community" %} <i class="mdi mdi-information text-primary" data-bs-toggle="tooltip" data-bs-placement="right" aria-label="Community" data-bs-original-title="Enter the community for SNMP query."></i></label>
+            <input type="password" class="form-control" id="community" name="community" value="{% if community %}{{ community }}{% endif %}" required>              
+            <label for="ip_address" class="form-label"><br>{% trans "IP Address" %} <i class="mdi mdi-information text-primary" data-bs-toggle="tooltip" data-bs-placement="right" aria-label="IP Address" data-bs-original-title="Enter the IP Address to check."></i></label>
+            <input type="text" class="form-control" id="ip_address" name="ip_address" value="{% if ip %}{{ ip }}{% endif %}" required>
+            <button type="submit" class="btn btn-primary mt-2">{% trans "Check blocked IP" %}</button>
+          </form>
+          <div>
+            {% if error %}
+              <div class="alert alert-danger mt-3" style="color: red; " role="alert">
+                <b>{{ error }}</b>
+              </div>
+            {% endif %}
+            {% if message %}
+              <div class="alert alert-success mt-3" style="color: black; " role="alert">
+                <b>{{ message }}</b>
+              </div>
+            {% endif %}
+
+        </div>
+          </div>
+        </div>
+      </div>
+
+
+
+{% endblock %}
+
+
+
+
+
+
+
